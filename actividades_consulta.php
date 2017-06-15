@@ -132,14 +132,20 @@ function actividadesconsulta($ID,$seleccion){
 	$query="
 	 
 		SELECT 
+		
 			`actividades`.`id`,
-			`actividades`.`resumen`,
 			`actividades`.`abierta`,
+			
+			`actividades`.`resumen`,
 		    `actividades`.`consigna`,
 		    `actividades`.`x0`,
 		    `actividades`.`y0`,
 		    `actividades`.`xF`,
 		    `actividades`.`yF`,
+		    `actividades`.`imx0`,
+		    `actividades`.`imy0`,
+		    `actividades`.`imxF`,
+		    `actividades`.`imyF`,		    
 		    `actividades`.`geometria`,
 		    `actividades`.`adjuntosAct`,
 		    `actividades`.`adjuntosDat`,	

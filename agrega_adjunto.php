@@ -31,24 +31,12 @@
 
 
 
-
-
+ini_set('display_errors', 1);
 include('./includes/conexion.php');
+
 include('./includes/conexionusuario.php');
 include("./includes/fechas.php");
 include("./includes/cadenas.php");
-
-include("./includes/meta.php");
-echo '
-	<link href="css/mapauba.css" rel="stylesheet" type="text/css">	
-	<style type="text/css">
-		body{
-		    overflow:hidden;
-			margin:0px;
-			font-size:9px;
-		}
-	</style>
-';
 
 $UsuarioI = $_SESSION['USUARIOID'];
 if($UsuarioI<1){
@@ -72,14 +60,6 @@ while($row=mysql_fetch_assoc($Consulta)){
 	$Accesos[$row['id_usuarios']]=$row['nivel'];
 }
 
-/*
-if($Accesos[$UsuarioI]<1){
-	//header('location: ./actividades.php');	//este usuario deber definir una actividad habilitada
-	echo "ERROR de Acceso 2";
-	break;
-}*/
-
-//echo "hola";
 
 $nombre = $_FILES['upload']['name'];
 $b = explode(".",$nombre);
@@ -99,16 +79,80 @@ if(!file_exists($path)){
 	echo "creando carpeta $path";mkdir($path, 0777, true);chmod($path, 0777);	
 }
 
-$nuevonombre= $path."u".str_pad($UsuarioI, 6, '0', STR_PAD_LEFT)."f".date("Y-m-d-H-i-s").".".$ext;
 
-		$extVal['jpg']='1';
-		$extVal['png']='1';
-		$extVal['tif']='1';
-		$extVal['bmp']='1';
-		$extVal['gif']='1';
-		$extVal['pdf']='1';
-		$extVal['zip']='1';
+if(!isset($_POST['tipo'])){
+	
+	$nuevonombre= $path."u".str_pad($UsuarioI, 6, '0', STR_PAD_LEFT)."f".date("Y-m-d-H-i-s").".".$ext;
+
+	$extVal['jpg']='1';
+	$extVal['png']='1';
+	$extVal['tif']='1';
+	$extVal['bmp']='1';
+	$extVal['gif']='1';
+	$extVal['pdf']='1';
+	$extVal['zip']='1';
+	
+	
+	if(!isset($extVal[strtolower($ext)])){
+		echo"solo se aceptan los formatos:";
+		foreach($extVal as $k => $v){echo" $k,";}
+		break;
+	}
+
+	if (!copy($_FILES['upload']['tmp_name'], $nuevonombre)) {
+	    echo "Error al copiar $nuevonombre";
+	}else{
+		echo "archivo guardado. ";			
+		$query="
+		INSERT INTO 
+			`MAPAUBA`.`FILEadjuntos`
+			SET
+			`nombre`='$nombre',
+			`ruta`='$nuevonombre',
+			`fecha`='".date("Y-m-d")."',
+			`hora`='".date("H-i-s")."',
+			`usuario`='$UsuarioI',
+			`actividad`=".$_POST['actividad']."				
+		";
 		
+		$Consulta = mysql_query($query,$Conec1);
+		$NID=mysql_insert_id($Conec1);
+		if($NID>0){
+		echo "registro guardado. ";
+		
+		echo "
+			<script type='text/javascript'>
+				//console.log('hola');
+				parent.document.getElementById('adjunto').setAttribute('src','$nuevonombre');
+				parent.document.getElementById('link').value='$nuevonombre';				
+			</script>
+		";	
+		}else{
+			echo "no pudo guardare el registro, puede que el documento permanezca inaccesible o sea eliminado. ";
+			
+		}
+	}
+	echo "
+		<script type='text/javascript'>
+			console.log('no pudo guardare el registro, puede que el documento permanezca inaccesible o sea eliminado. ');
+			//parent.document.getElementById('cargaimagen').style.width='200';
+		</script>
+	";		
+
+
+	print_r($_FILES['upload']);
+
+}else{
+	if($_POST['tipo']=='img.png'){
+				
+
+		//$extVal['jpg']='1';
+		$extVal['png']='1';
+		//$extVal['tif']='1';
+		//$extVal['bmp']='1';
+		//$extVal['gif']='1';
+		//$extVal['pdf']='1';
+		//$extVal['zip']='1';
 		
 		if(!isset($extVal[strtolower($ext)])){
 			echo"solo se aceptan los formatos:";
@@ -116,46 +160,27 @@ $nuevonombre= $path."u".str_pad($UsuarioI, 6, '0', STR_PAD_LEFT)."f".date("Y-m-d
 			break;
 		}
 
+		$nuevonombre= $path."img.png";
 		if (!copy($_FILES['upload']['tmp_name'], $nuevonombre)) {
 		    echo "Error al copiar $nuevonombre";
 		}else{
 			echo "archivo guardado. ";			
-			$query="
-			INSERT INTO 
-				`MAPAUBA`.`FILEadjuntos`
-				SET
-				`nombre`='$nombre',
-				`ruta`='$nuevonombre',
-				`fecha`='".date("Y-m-d")."',
-				`hora`='".date("H-i-s")."',
-				`usuario`='$UsuarioI',
-				`actividad`=".$_POST['actividad']."				
-			";
-			
-			$Consulta = mysql_query($query,$Conec1);
-			$NID=mysql_insert_id($Conec1);
-			if($NID>0){
-			echo "registro guardado. ";
 			
 			echo "
 				<script type='text/javascript'>
-					//console.log('hola');
-					parent.document.getElementById('adjunto').setAttribute('src','$nuevonombre');
-					parent.document.getElementById('link').value='$nuevonombre';				
+					parent.document.getElementById('adjunto').setAttribute('src','$nuevonombre');				
 				</script>
 			";	
-			}else{
-				echo "no pudo guardare el registro, puede que el documento permanezca inaccesible o sea eliminado. ";
-				
-			}
+			
 		}
 		echo "
-				<script type='text/javascript'>
-					console.log('no pudo guardare el registro, puede que el documento permanezca inaccesible o sea eliminado. ');
-					//parent.document.getElementById('cargaimagen').style.width='200';
-				</script>";		
-
-
-print_r($_FILES['upload']);
-	
+			<script type='text/javascript'>
+				console.log('no pudo guardare el registro, puede que el documento permanezca inaccesible o sea eliminado. ');
+				//parent.document.getElementById('cargaimagen').style.width='200';
+			</script>
+		";
+								
+		
+	}
+}	
 ?>

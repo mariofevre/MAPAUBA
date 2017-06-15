@@ -25,13 +25,18 @@
 */
 
 
-
+//ini_set('display_errors', '1');
+//if($_SERVER['SERVER_ADDR']=='192.168.0.252')ini_set('display_errors', '1');
+//ini_set('display_startup_errors', '1');ini_set('suhosin.disable.display_errors','0'); error_reporting(-1);
 
 include('./includes/conexion.php');
 include("./includes/fechas.php");
 include("./includes/cadenas.php");
 
 session_destroy();
+
+
+// $_GET['DEST'] define a donde se dirigi´ra luego de loguearse
 
 if(isset($_POST['loguear'])){
 	$pass = md5($_POST['pass']);
@@ -42,7 +47,7 @@ if(isset($_POST['loguear'])){
 		    `usuarios`.`log`,
 		    `usuarios`.`zz_activo`	    
 		FROM `MAPAUBA`.`usuarios`
-		WHERE log='".$_POST['log']."'
+		WHERE BINARY log='".$_POST['log']."'
 	";
 	$Consulta = mysql_query($query,$Conec1);
 	echo mysql_error($Conec1);
@@ -122,7 +127,7 @@ if(isset($_POST['loguear'])){
 				</div>			
 				<div>
 				<!--- <a class='boton' href="registro.php">Regístrese aquí para participar si no posee un usuario</a> --->	
-				<a href='./registro.php' class='boton'>Regístrese aquí para participar si no posee un usuario</a>
+				<a href='./registro.php?DEST=<?php echo $_GET['DEST'];?>&actividad=<?php echo $_GET['actividad'];?>' class='boton'>Regístrese aquí para participar si no posee un usuario</a>
 				</div>
 				<div>
 				<!--- <a class='boton' href='./registrorecuperar.php'>Olvidé mi contraseña</a> --->
