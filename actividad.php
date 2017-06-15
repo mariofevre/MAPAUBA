@@ -100,74 +100,75 @@ if(isset($_POST['accion'])){
 	}	
 }
 
-	
+
 // medicion de rendimiento lamp 
-	$starttime = microtime(true);
+$starttime = microtime(true);
 
 // filtro de representación restringe documentos visulazados, no altera datos estadistitico y de agregación 
-	$FILTRO=isset($_GET['filtro'])?$_GET['filtro']:'';	
-	
+$FILTRO=isset($_GET['filtro'])?$_GET['filtro']:'';	
+
 // filtro temporal de representación restringe documentos visulazados, no altera datos estadistitico y de agregación 	
-	$fechadesde_a=isset($_GET['fechadesde_a'])?str_pad($_GET['fechadesde_a'], 4, "0", STR_PAD_LEFT):'0000';
-	$fechadesde_m=isset($_GET['fechadesde_m'])?str_pad($_GET['fechadesde_m'], 2, "0", STR_PAD_LEFT):'00';
-	$fechadesde_d=isset($_GET['fechadesde_d'])?str_pad($_GET['fechadesde_d'], 2, "0", STR_PAD_LEFT):'00';
-	if($fechadesde_a!='0000'&&$fechadesde_m!='00'&&$fechadesde_d!='00'){
-		$FILTROFECHAD=$fechadesde_a."-".$fechadesde_m."-".$fechadesde_d;
+$fechadesde_a=isset($_GET['fechadesde_a'])?str_pad($_GET['fechadesde_a'], 4, "0", STR_PAD_LEFT):'0000';
+$fechadesde_m=isset($_GET['fechadesde_m'])?str_pad($_GET['fechadesde_m'], 2, "0", STR_PAD_LEFT):'00';
+$fechadesde_d=isset($_GET['fechadesde_d'])?str_pad($_GET['fechadesde_d'], 2, "0", STR_PAD_LEFT):'00';
+if($fechadesde_a!='0000'&&$fechadesde_m!='00'&&$fechadesde_d!='00'){
+	$FILTROFECHAD=$fechadesde_a."-".$fechadesde_m."-".$fechadesde_d;
+}else{
+	$FILTROFECHAD='';
+}
+$fechahasta_a=isset($_GET['fechahasta_a'])?str_pad($_GET['fechahasta_a'], 4, "0", STR_PAD_LEFT):'0000';
+$fechahasta_m=isset($_GET['fechahasta_m'])?str_pad($_GET['fechahasta_m'], 2, "0", STR_PAD_LEFT):'00';
+$fechahasta_d=isset($_GET['fechahasta_d'])?str_pad($_GET['fechahasta_d'], 2, "0", STR_PAD_LEFT):'00';
+if($fechahasta_a!='0000'&&$fechahasta_m!='00'&&$fechahasta_d!='00'){
+	$FILTROFECHAH=$fechahasta_a."-".$fechahasta_m."-".$fechahasta_d;
+}else{	
+	$FILTROFECHAH='';
+}
+
+$seleccion['zoom'] = 0;
+
+// función para obtener listado formateado html de actividades 
+$Contenido =  reset(actividadesconsulta($ID,$seleccion));
+//echo "<pre>";print_r($Contenido);echo "</pre>";
+
+
+	foreach($Contenido['Acc'][2] as $acc => $accdata){
+		if($accdata['id_usuarios']==$UsuarioI){
+			$Coordinacion='activa';
+		}
+	}
+	foreach($Contenido['Acc'][3] as $acc => $accdata){
+		if($accdata['id_usuarios']==$UsuarioI){
+			$Administracion='activa';
+			$Coordinacion='activa';
+		}
+	}
+
+$Actividad=reset(actividadesconsulta($ID,$seleccion));
+//echo "<pre>";print_r($Actividad);echo "</pre>";
+if($Actividad['zz_PUBLICO']!='1'&&$Actividad['zz_AUTOUSUARIOCREAC']!=$UsuarioI){
+	echo "<h2>Error en el acceso, esta actividad no se encuentra aún publicada y usted no se encuentra registrado como autor de la misma.</h2>";
+	break;
+}
+
+
+if($RID>0){
+	$Registro=$Actividad['GEO'][$RID];
+	//print_r($Registro);
+	if($Registro['id_usuarios']==$UsuarioI){
+		$Accion='cambia';
+		$Valores=$Registro;
+		$ValoresRef=$Registro;
+		$AccionTx='Guardar cambios';
 	}else{
-		$FILTROFECHAD='';
+		$Accion='ver';
+		$ValoresRef=$Registro;
+		$AccionTx='';			
 	}
-	$fechahasta_a=isset($_GET['fechahasta_a'])?str_pad($_GET['fechahasta_a'], 4, "0", STR_PAD_LEFT):'0000';
-	$fechahasta_m=isset($_GET['fechahasta_m'])?str_pad($_GET['fechahasta_m'], 2, "0", STR_PAD_LEFT):'00';
-	$fechahasta_d=isset($_GET['fechahasta_d'])?str_pad($_GET['fechahasta_d'], 2, "0", STR_PAD_LEFT):'00';
-	if($fechahasta_a!='0000'&&$fechahasta_m!='00'&&$fechahasta_d!='00'){
-		$FILTROFECHAH=$fechahasta_a."-".$fechahasta_m."-".$fechahasta_d;
-	}else{	
-		$FILTROFECHAH='';
-	}
-
-	$seleccion['zoom'] = 0;
-	
-	// función para obtener listado formateado html de actividades 
-	$Contenido =  reset(actividadesconsulta($ID,$seleccion));
-	//echo "<pre>";print_r($Contenido);echo "</pre>";
-	
-
-		foreach($Contenido['Acc'][2] as $acc => $accdata){
-			if($accdata['id_usuarios']==$UsuarioI){
-				$Coordinacion='activa';
-			}
-		}
-		foreach($Contenido['Acc'][3] as $acc => $accdata){
-			if($accdata['id_usuarios']==$UsuarioI){
-				$Administracion='activa';
-				$Coordinacion='activa';
-			}
-		}
-
-	$Actividad=reset(actividadesconsulta($ID,$seleccion));
-	//echo "<pre>";print_r($Actividad);echo "</pre>";
-	if($Actividad['zz_PUBLICO']!='1'&&$Actividad['zz_AUTOUSUARIOCREAC']!=$UsuarioI){
-		echo "<h2>Error en el acceso, esta actividad no se encuentra aún publicada y usted no se encuentra registrado como autor de la misma.</h2>";
-		break;
-	}
-	
-	
-	if($RID>0){
-		$Registro=$Actividad['GEO'][$RID];
-		//print_r($Registro);
-		if($Registro['id_usuarios']==$UsuarioI){
-			$Accion='cambia';
-			$Valores=$Registro;
-			$AccionTx='Guardar cambios';
-		}else{
-			$Accion='ver';
-			$ValoresRef=$Registro;
-			$AccionTx='';			
-		}
-	}else{
-		$Accion='crear';
-		$AccionTx='Guardar punto';
-	}
+}else{
+	$Accion='crear';
+	$AccionTx='Guardar punto';
+}
 ?>
 
 	<title>MAPAUBA - Área de Trabajo</title>
@@ -498,6 +499,7 @@ span.ui-slider-handle:hover {
 		</div>	
 		<h4>Puntos relevados en esta actividad</h4>
 		<a onclick="obtenerDescarga(this);">generar copia de descarga de la actividad</a>
+		<a href="./actividad_reporte.php?actividad=<?php echo $ID;?>">ver resumen de contenidos de la actividad</a>
 		<ul id='puntosdeactividad'>		
 		</ul>
 		
@@ -523,17 +525,19 @@ span.ui-slider-handle:hover {
 		if($RID>0){$cons='verpuntos';}else{$cons='marcarpuntos';}	
 		echo "<iframe  name='mapa' id='mapa' src='./MAPAactividad.php?actividad=".$Actividad['id']."&consulta=".$cons."&rid=".$RID."'></iframe> ";
 	
-	
+		//echo"<pre>";print_r($Actividad);echo"</pre>";
 		// formulario para agregar una nueva actividad		
 		if($ID==''){
 				echo "la actividad no fue llamada correctamnte";
 		}else{
 			
-				echo "<p>".$Actividad['consigna']."</p>";
+				echo "<p>".$Actividad['consigna']."</p>";				
 				
+				if($Actividad['hasta']<=$HOY&&$Actividad['hasta']>'0000-00-00'){
+					$Stat='cerrada';
+				}
 				
-					if($Accion=='ver'){
-						
+					if($Accion=='ver'||$Stat=='cerrada'){		
 						echo "<div class='formulario vista'>";
 								if($Coordinacion=='activa'&&$ValoresRef['zz_bloqueado']=='0'){		
 									echo "<form autocomplete='off' id='formCoord' enctype='multipart/form-data' method='post' action='./MAPAactividad.php' target='mapa'>";
@@ -558,11 +562,9 @@ span.ui-slider-handle:hover {
 									echo "</form>";
 								}
 								
-								if($Actividad['hasta']>=$HOY&&$Actividad['hasta']>='0000-00-00'){
+								
 									
-								}elseif($Actividad['desde']>$HOY){
-									
-								}else{
+								if($Stat!='cerrada'){
 									echo "<a class='botonamarcar marcar' href='./actividad.php?actividad=".$Actividad['id']."'>cargar nuevos puntos</a>";
 								}
 								
@@ -628,8 +630,11 @@ span.ui-slider-handle:hover {
 									echo "<label for='texto'>".$Actividad['textoDat']."</label>";
 									echo "<div id='texto_parent' id='texto'>".$ValoresRef['texto']."</div>";
 								}
+								
 					}else{
-							echo "<input type='hidden' id='actividad' name='actividad' value='".$Actividad['id']."'>";
+					
+						echo "<input type='hidden' id='actividad' name='actividad' value='".$Actividad['id']."'>";
+						
 						if($Actividad['hasta']<=$HOY&&$Actividad['hasta']>'0000-00-00'){
 							echo "<div class='formulario vista'>
 							<h2>Esta actividad ha cerrado el día ".$Actividad['hasta'].", para la carga de datos</h2>
@@ -646,12 +651,9 @@ span.ui-slider-handle:hover {
 							echo "
 							<h2>Esta actividad se abrirá el día ".$Actividad['desde'].", para la carga de datos</h2>									
 							";							
-						}else{
-						
+						}else{						
 							echo "<div class='formulario activo'>";
 								echo "<form id='formPuntos' enctype='multipart/form-data' method='post' action='./MAPAactividad.php' target='mapa'>";
-								
-									
 									if($Valores['zz_bloqueado']=='1'&&($Accesos[$UsuarioI]>='2'||$UsuarioI==$Valores['id_usuarios'])){
 										echo"
 											<div id='bloqudescricion'>

@@ -512,7 +512,7 @@ if($ACCION=="crear"&&$UsuarioI>0){
 	        
 	        var _selectocupado='no';
 	        
-	        var _Zoom=0;//variable que define el nivel de zun a utilizar en el map. 0: ajustar al (area).
+	        var _Zoom=undefined;//variable que define el nivel de zun a utilizar en el map. 0: ajustar al (area).
 
 	        // Definimos una función que arranque al cargar la página
 	        window.onload= function() {
@@ -567,6 +567,8 @@ if($ACCION=="crear"&&$UsuarioI>0){
                 {layers: 'OSM-WMS'},	                
                 {attribution:"Base OSM bajo servidor irs gis lab"}
             );		
+   
+            
             
             // Creamos una capa fondo con un servicio wms
             var capa = new OpenLayers.Layer.WMS( 
@@ -575,22 +577,64 @@ if($ACCION=="crear"&&$UsuarioI>0){
                 {layers: 'basic'},
                 {attribution:"Base OSM bajo servidor GEOFABRIK"}
             );
-	            
-	           
-			
 
-	            
+
            	var styleMapResalt = new OpenLayers.StyleMap({pointRadius: 6,fillColor:'#57f',strokeColor:'#25f', fillOpacity:1,});
            	//creamos capa de puntos resaltados que se llenará solo al resaltar un punto
 	        resaltadoLayer = new OpenLayers.Layer.Vector("P. Resaltados", {styleMap: styleMapResalt})
 
 
+
+
+
+			var layerBaseListeners ={
+				
+		        featureover: function(e) {
+		        	
+	        		escrolearB('P_'+e.feature.attributes.id);
+					
+		          
+		            //console.log('Map says: Pointer entered ' + e.feature.id + ' on ' + e.feature.layer.name);
+		            _sel=parent.document.getElementById('P_'+e.feature.attributes.id);
+		            _sel.className='seleccionado';
+		            
+					_pp=document.createElement('p');
+					_pp.innerHTML=_sel.title;
+					_pp.setAttribute('id','desarrollo');
+					_sel.appendChild(_pp);
+					
+					if(_sel.getAttribute('img')!=undefined){
+						_pp=document.createElement('img');						
+						_pp.setAttribute('src',_sel.getAttribute('img'));
+						_pp.setAttribute('id','imagen');
+						_sel.appendChild(_pp);
+					}
+		            
+		            //escrolear('P_'+e.feature.attributes.id);
+		           //mapa.removeControl(drawPoint);
+
+		
+		        },featureout: function(e) {
+		        	
+		            //e.feature.renderIntent = 'default';
+		            //e.feature.layer.drawFeature(e.feature);
+		            //console.log('Map says: Pointer left ' + e.feature.id + ' on ' + e.feature.layer.name);
+		            parent.document.getElementById('P_'+e.feature.attributes.id).className='';
+					
+					_pp=_sel.querySelector('#desarrollo');
+					_sel.removeChild(_pp);
+					if(_sel.getAttribute('img')!=undefined){
+						_pp=_sel.querySelector('#imagen');
+						_sel.removeChild(_pp);   
+					}
+		        }
+				
+			}
+			
            	var styleMap = new OpenLayers.StyleMap({pointRadius: 2,});	        
 	 		//creamos capa de puntos de la base colectiva seleccionados para acompañar la visualización
-	        baseLayer = new OpenLayers.Layer.Vector("P. Compartidos", {styleMap: styleMap});
+	        baseLayer = new OpenLayers.Layer.Vector("P. Compartidos", {styleMap: styleMap,eventListeners: layerBaseListeners});
 			//console.log(baseLayer);
-			
-			
 			
 			var styleMapBloq = new OpenLayers.StyleMap({pointRadius: 4,strokeColor:'#f22',graphicName:'x'});	        
 	 		//creamos capa de puntos bloqueados
@@ -602,7 +646,9 @@ if($ACCION=="crear"&&$UsuarioI>0){
 
 			mapa.events.register("zoomend", mapa, function() {
 						recargarPuntos();
-					});							
+					});
+					
+												
 					 
 			<?php
 			
@@ -632,6 +678,31 @@ if($ACCION=="crear"&&$UsuarioI>0){
 			            //escrolear('P_'+e.feature.attributes.id);
 			           //mapa.removeControl(drawPoint);
 			           
+			            _sel=parent.document.getElementById('P_'+e.feature.attributes.id);
+			            _sel.className='seleccionado';
+			            
+			            if(_sel.querySelector('#desarrollo')!=undefined){
+							_pp=_sel.querySelector('#desarrollo');
+							_sel.removeChild(_pp);
+						}
+						if(_sel.querySelector('#imagen')!=undefined){
+							_pp=_sel.querySelector('#imagen');
+							_sel.removeChild(_pp);   
+						}
+			            
+			            
+						_pp=document.createElement('p');
+						_pp.innerHTML=_sel.title;
+						_pp.setAttribute('id','desarrollo');
+						_sel.appendChild(_pp);
+						
+						if(_sel.getAttribute('img')!=undefined){
+							_pp=document.createElement('img');						
+							_pp.setAttribute('src',_sel.getAttribute('img'));
+							_pp.setAttribute('id','imagen');
+							_sel.appendChild(_pp);
+						}
+			           
 			           ";
 					   
 					   if($_GET['consulta']=='marcarpuntos'||$_GET['consulta']==''){
@@ -647,25 +718,30 @@ if($ACCION=="crear"&&$UsuarioI>0){
 			            e.feature.layer.drawFeature(e.feature);
 			            //console.log('Map says: Pointer left ' + e.feature.id + ' on ' + e.feature.layer.name);
 			            parent.document.getElementById('P_'+e.feature.attributes.id).className='';
-						 ";
+						
+						
+						
+						_pp=_sel.querySelector('#desarrollo');
+						_sel.removeChild(_pp);
+						
+						if(_sel.querySelector('#imagen')!=undefined){
+							_pp=_sel.querySelector('#imagen');
+							_sel.removeChild(_pp);   
+						}
+				";
 					   
 					   
 					   if($_GET['consulta']=='marcarpuntos'||$_GET['consulta']==''){
 					   	echo "drawPoint.activate();";
 			           }
-			           
-			          
 						
-				echo "
-						
-					    
+				echo "					    
 			        },
 			        featureclick: function(e) {
 			            //console.log('Map says: ' + e.feature.id + ' clicked on ' + e.feature.layer.name);
 						//console.log(e.feature.attributes);
 						_href='./actividad.php?actividad=' + e.feature.attributes.actividad + '&registro='+ e.feature.attributes.id;
-						parent.window.location.assign(_href);
-						
+						parent.window.location.assign(_href);						
 			        }
 					    
 				};
@@ -710,7 +786,6 @@ if($ACCION=="crear"&&$UsuarioI>0){
 						vectorLayer = new OpenLayers.Layer.Vector('P. de Actividad',{eventListeners: layerListeners});
 					";
 				}
-				
 
 			echo "
 			    parent.document.getElementById('puntosdeactividad').innerHTML='';				
@@ -753,20 +828,25 @@ if($ACCION=="crear"&&$UsuarioI>0){
 					$maxLat=max($maxLat,$LAdata['lat']);
 					$maxLon=max($maxLon,$LAdata['lon']);
 					
-					
 					if($LAdata['id'] != null) {
-						
 						
 						$tit = strip_tags($LAdata['texto']);
 						
 						$tit=eliminarCodigoAsciiAcentos($tit);
-				
-											
+								
 						echo "
 							var _li = parent.document.createElement('li');
-							_li.setAttribute('id','P_'+".$LAdata['id'].");	
+							_li.setAttribute('id','P_".$LAdata['id']."');	
+							";
 							
-							_li.setAttribute('title','".$tit."');
+						if($LAdata['link']!=''){
+							if(file_exists($LAdata['link'])){
+								echo "_li.setAttribute('img','".$LAdata['link']."');";
+							}
+						}
+							
+						echo "
+							_li.setAttribute('title','".str_replace("'","",$tit)."');
 							_li.setAttribute('onmouseOver','document.getElementById(\"mapa\").contentWindow.activar(\"".$LAdata['id']."\");this.className=\"seleccionado\"');
 							_li.setAttribute('onmouseOut','document.getElementById(\"mapa\").contentWindow.desactivar(\"".$LAdata['id']."\");this.className=\"\"');
 							
@@ -805,6 +885,7 @@ if($ACCION=="crear"&&$UsuarioI>0){
 						echo "
 							_activ.innerHTML=_activ.innerHTML+'<br><span class=\"autor\">".strtoupper($LAdata['Usuario']['nombre']." ".$LAdata['Usuario']['apellido'])."</span>';
 							_activ.innerHTML=_activ.innerHTML+'<span class=\"textobreve\">".$LAdata['textobreve']."</span>';
+							
 							
 							_li.appendChild(_activ);
 							
@@ -858,11 +939,16 @@ if($ACCION=="crear"&&$UsuarioI>0){
 				//creamos el punto seleccionadocapa de puntos del registro seleccionado     		    		
            		
 					echo "
+					
+					
 						var point =
 					        new OpenLayers.Geometry.Point(".$Prid['lon'].", ".$Prid['lat'].");
 					    var pointFeature =
 					        new OpenLayers.Feature.Vector(point, null);
-						pointFeature.attributes = { 'valor' : '".$Prid['valor']."', 'id': '".$Prid['id']."'};		
+						pointFeature.attributes = { 'valor' : '".$Prid['valor']."', 'id': '".$Prid['id']."'};
+						
+						//console.log(point);		
+						
 						// Añadir el feature creado a la capa de puntos existentes       
 						nuevoLayer.addFeatures(pointFeature);		
 						_Zoom ='".min(14,$Puntos['Activ'][$rLAid]['z'])."';
@@ -893,7 +979,8 @@ if($ACCION=="crear"&&$UsuarioI>0){
 				$Actividad['yF']=-36;
 			}
 			?>
-			//creamos area de carga			
+			//creamos area de carga
+						
 			var _Poly =
 		        new OpenLayers.Bounds(<?php echo $Actividad['x0'];?> , <?php echo $Actividad['y0'];?> , <?php echo $Actividad['xF'];?> , <?php echo $Actividad['yF'];?>).toGeometry();
 
@@ -906,17 +993,17 @@ if($ACCION=="crear"&&$UsuarioI>0){
 		    areaLayer.addFeatures(polyFeature); 
 
 
+
 			<?php 
-			if($Actividad['id']=='14'){
-				
-				// creamos capas compolementarias
-				// capa de imagenes
 			
-				$ImagenCapa='./documentos/actividades/00000014/img.png';
-				$limN=-34.588703310503;
-				$limO=-58.418141019512;
-				$limS=-34.590460932268;
-				$limE=-58.413978231121;
+			if($Actividad['imx0']!==null){
+				$pad=str_pad($Actividad['id'], 8,'0',STR_PAD_LEFT);
+				$ImagenCapa='./documentos/actividades/'.$pad.'/img.png';
+				
+				$limN=$Actividad['imy0'];
+				$limO=$Actividad['imx0'];
+				$limS=$Actividad['imyF'];
+				$limE=$Actividad['imxF'];
 				
 				$str_bounds=$limO.",".$limS.",".$limE.",".$limN;
 				
@@ -934,29 +1021,41 @@ if($ACCION=="crear"&&$UsuarioI>0){
 		           }
 				);				
 							
-				<?php 
+				<?php 				
 			}
+
 			?>
             // Añadimos las capas al mapa
             mapa.addLayers([capa, capaB, areaLayer, resaltadoLayer, vectorLayer, baseLayer, tempLayer, nuevoLayer, bloqueadoLayer]);
             
             mapa.setLayerIndex(resaltadoLayer,99);
             mapa.setLayerIndex(vectorLayer,5);
-			
-
+				
 	            // Fijamos centro y zoom
 	            //mapa.zoomToMaxExtent();
-	           // console.log(_Area);
+	   	           
+	            if( typeof _Zoom == 'undefined'){	            	
+	            	            	
+            	    bounds = new OpenLayers.Bounds();
+				    bounds.extend(new OpenLayers.LonLat(_Area[0],_Area[1]));
+				    bounds.extend(new OpenLayers.LonLat(_Area[2],_Area[3]));
+				    bounds.toBBOX(); // returns 4,5,5,6
+				    
+				    mapa.zoomToExtent(bounds);
+            	
+				}else{
+				
+		            console.log(_Area);
+		            if(typeof _CenLon == 'undefined' || typeof _CenLat == 'undefined' ){
+		            	_CenLon=(_Area[2]-_Area[0])/2+_Area[0];
+		            	_CenLat=(_Area[3]-_Area[1])/2+_Area[1];
+		            }
 	            
-	            if(_Zoom>0){
 	            	mapa.zoomTo(_Zoom);
 	            	mapa.setCenter(new OpenLayers.LonLat(_CenLon, _CenLat), _Zoom);
-	            }else{
-	            	mapa.zoomToExtent(_Area);
-	            	
-	            }         
+				}                     
 	            
-	            //mapa.setCenter(new OpenLayers.LonLat(<?php echo $lon.", ".$lat;?>), 3);
+	          
 	            
 	            <?php
 	            
@@ -966,8 +1065,6 @@ if($ACCION=="crear"&&$UsuarioI>0){
 	 				mapa.addControl(new OpenLayers.Control.MousePosition());
 	 				mapa.addControl(new OpenLayers.Control.PanZoomBar());
 					
-					
-
 					/*selectPoint=new OpenLayers.Control.SelectFeature( [vectorLayer, baseLayer], {
 					    hover: true,
 					    onSelect: function (feature) {
@@ -1057,9 +1154,8 @@ if($ACCION=="crear"&&$UsuarioI>0){
 	
 	
 	        function featAdded() {
-	        						        	
+	        					        	
 	        	<?php
-					        	
 	        	echo"
 	        		_minx='".min($Actividad['x0'],$Actividad['xF'])."';
 	           		_maxx='".max($Actividad['x0'],$Actividad['xF'])."';
@@ -1069,15 +1165,10 @@ if($ACCION=="crear"&&$UsuarioI>0){
 	        	";
 	        	?>
 	        	
-				
 				if(_minx>drawPoint.handler.point.geometry.x||_miny>drawPoint.handler.point.geometry.y||_maxx<drawPoint.handler.point.geometry.x||_maxy<drawPoint.handler.point.geometry.y){
-					
 					alert('solo se pueden cargar puntos dentro del área de trabajo');
 					tempLayer.removeAllFeatures();
-					
 				}else{
-
-					
 					var _lat = parent.document.getElementById("y");				
 					_lat.value=drawPoint.handler.point.geometry.y;
 					var _lon = parent.document.getElementById("x");
@@ -1175,7 +1266,6 @@ if($ACCION=="crear"&&$UsuarioI>0){
 					parent.document.getElementById("C_xF").className='cambiado';									
 					parent.document.getElementById("C_yF").value=_coordy1;	
 					parent.document.getElementById("C_yF").className='cambiado';		
-			      
 	        		        		
 	        	}
 		}
@@ -1235,6 +1325,7 @@ if($ACCION=="crear"&&$UsuarioI>0){
 		}
 		
 		function procesarRespuestaPuntos(response, tipo) {
+			
 			if(response!=''){
 				var res = $.parseJSON(response);
 				
@@ -1273,7 +1364,6 @@ if($ACCION=="crear"&&$UsuarioI>0){
 						_TX=limpiarAscii(res[i].texto);						
 						_li.setAttribute('title',_TX);
 						
-	
 						_li.setAttribute('onmouseOver','document.getElementById(\"mapa\").contentWindow.' + activar + '(\"'+res[i].id+'\");this.className=\"seleccionado\"');
 						_li.setAttribute('onmouseOut','document.getElementById(\"mapa\").contentWindow.' + desactivar + '(\"'+res[i].id+'\");this.className=\"\"');
 						
@@ -1292,15 +1382,18 @@ if($ACCION=="crear"&&$UsuarioI>0){
 						else if(res[i].valorAct == 1){
 							_activ.innerHTML=_activ.innerHTML+res[i].valor;
 						}
-						
-						
-											
+								
 						_activ.innerHTML=_activ.innerHTML+'<br><span class=\"autor\">' + res[i].nombreUsuario.toUpperCase() + '</span>';
-						
 						_activ.innerHTML=_activ.innerHTML+'<span class=\"textobreve\">' + res[i].textobreve + '</span>';
 						
-						_li.appendChild(_activ);
 						
+						
+						if(res[i]!=undefined){
+							if(res[i].link!=undefined){
+								_li.setAttribute('img',res[i].link);
+							}
+						}
+						_li.appendChild(_activ);
 						divPuntos.appendChild(_li);
 						
 						delete _li;
@@ -1319,7 +1412,7 @@ if($ACCION=="crear"&&$UsuarioI>0){
 		    
 		    if(vectorLayer.features[i]['attributes']['id']==_id){
 		    	_clon = vectorLayer.features[i].clone();
-				// 'Paste' feature into Layer 1				
+				//alert('hola');				
 				resaltadoLayer.addFeatures([ _clon ]);		
 				vectorLayer.features[i].destroy();    	
 		    }
@@ -1356,45 +1449,43 @@ if($ACCION=="crear"&&$UsuarioI>0){
 		    }
 		}
 	}	
+	
 	//desmarca seleccionado el punto de la capa baseLayer		
 	function desactivarB(_id){
 		for (i = 0; i < resaltadoLayer.features.length; i++) {		    
 		    if(resaltadoLayer.features[i]['attributes']['id']==_id){
 		    	_clon = resaltadoLayer.features[i].clone();
-				// 'Paste' feature into Layer 1				
+				// 'Paste' feature into Layer 1
+							
 				baseLayer.addFeatures([ _clon ]);	
 				resaltadoLayer.removeAllFeatures();	    	
 		    }
 		}
 	}	
 	
-	
-	
+
 	function escrolear(_id) { 
-		
-		
 		if(_id!='no'){
 			_sel=window.parent.document.getElementById(_id);
 			_lis=window.parent.document.getElementById('puntosdeactividad');
-			//_lis.appendChild(_sel);
+						
 			_lis.insertBefore(_sel, _lis.childNodes[0]);
 			
 			$('#puntosdeactividad', window.parent.document).scrollTop(0);
-		/*	
-		_sact=$('#puntosdeactividad', window.parent.document).scrollTop();
-		_spos=$('#'+_id, window.parent.document).position().top
-		_dat = _spos + _sact;
-		console.log( _sact + " mas " + _spos + " es " +_dat);
-		
-	    $('#puntosdeactividad', window.parent.document).animate({
-	        scrollTop: _dat
-	    }, 200);
-	   	//$('#puntosdeactividad', window.parent.document).scrollTop(300);
-	    //console.log( $('#'+_id, window.parent.document).offset().top);
-	    */
+
 	    }
 	}	
-	
+	function escrolearB(_id) { 
+		if(_id!='no'){
+			_sel=window.parent.document.getElementById(_id);
+			_lis=window.parent.document.getElementById('puntosdebase');
+						
+			_lis.insertBefore(_sel, _lis.childNodes[0]);
+			
+			$('#puntosdebase', window.parent.document).scrollTop(0);
+		
+	    }
+	}	
 	//var intervalID = setInterval(function(){escrolear(_selectocupado);}, 1000);
 	</script>	
 	</head>
@@ -1410,6 +1501,8 @@ if($ACCION=="crear"&&$UsuarioI>0){
 	}else{
 		echo "<div id='auxmapa' class='ver'>visualización del punto seleccionado</div>";
 	}
+	/*
+	echo "HOLA·";
 	?>
 	
 	<form method='POST' action='./argumentacionlocalizacion.php' enctype='multipart/form-data'>
@@ -1417,7 +1510,8 @@ if($ACCION=="crear"&&$UsuarioI>0){
 	<input type='hidden' value='<?php echo $_GET['localizacion'];?>' name='localizacion'>
 	<input style='display:none;' type='button' value='confirmo borrar' onclick='this.parentNode.submit();'>
 	</form>
-	
+	*/
+?>	
 	<div id='modelos'>
 		<div id='modelopuntoactividad'><div class='punto'></div></div>
 		

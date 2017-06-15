@@ -84,6 +84,7 @@ z - $zoom + case when `geodatos`.id_usuarios = $UsuarioI then 0 else 2 end ranki
 atributos.valor,
 atributos.valor,
 atributos.textobreve,
+atributos.link,
 ACTcategorias.CO_color color,
 ACTcategorias.nombre nombreCategoria,
 atributos.texto,
@@ -95,7 +96,8 @@ left outer JOIN MAPAUBA.actividades on `geodatos`.id_actividades = actividades.i
 left outer JOIN MAPAUBA.atributos on `geodatos`.id = atributos.id
 left outer JOIN MAPAUBA.ACTcategorias on atributos.categoria = ACTcategorias.id
 left outer JOIN MAPAUBA.usuarios on geodatos.id_usuarios = usuarios.id
-where geodatos.zz_borrada='0'
+where 
+geodatos.zz_borrada='0' and actividades.zz_borrada='0'
 and x >= $x0 and x <= $xf and y >= $y0 and y <= $yf 
 /*and z >= $zoom*/ and `geodatos`.id_actividades = $actividad
 order by ranking
@@ -121,6 +123,7 @@ else {
 		ACTcategorias.nombre nombreCategoria,
 		atributos.texto,
 		atributos.textobreve,
+		atributos.link,
 		concat(concat(usuarios.nombre, ' '), usuarios.apellido) as nombreUsuario,
 		actividades.valorAct valorAct,
 		actividades.categAct categAct
@@ -130,7 +133,8 @@ else {
 		left outer JOIN MAPAUBA.ACTcategorias on atributos.categoria = ACTcategorias.id
 		left outer JOIN MAPAUBA.usuarios on geodatos.id_usuarios = usuarios.id
 		left outer JOIN MAPAUBA.ACTtags on ACTtags.id_p_actividades_id = geodatos.id_actividades
-		where geodatos.zz_borrada='0'
+		where 
+		geodatos.zz_borrada='0' and actividades.zz_borrada='0'
 		and atributos.id is not null  
 		and usuarios.id > 0
 		and zz_bloqueado='0'
@@ -173,6 +177,10 @@ if (mysql_num_rows($ConsultaGEO) > 0) {
 	}
 	
 }else{
-	echo $query;
+	
+	
+	$puntos[] = 'No hay puntos en este sector';	
+	$salida=json_encode($puntos);
+	print_r($salida);
 }
 ?>

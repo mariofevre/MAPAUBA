@@ -320,6 +320,31 @@ input.fusion{
     cursor:pointer;
 }
 
+iframe#cargaimagen{
+	display:none;
+}
+form#adjuntador{
+	width:90px;
+	position:absolute;
+	top:370px;
+	left:600px;
+}
+img#adjunto{
+	position:absolute;
+	top:370px;
+	left:715px;
+	height:50px;
+}
+input#uploadinput{
+	width:90px;
+	height:35px;
+}
+label.upload{
+	height:35px;
+}
+label.upload:hover{
+	background-color:#CEF6F5;
+}
 	</style>
 	
 	
@@ -372,7 +397,22 @@ input.fusion{
 				echo "la actividad no fue llamada correctamnte";
 		}else{
 			// formulario para modificar una actividad 
+			echo "<form id='adjuntador' enctype='multipart/form-data' method='post' action='./agrega_adjunto.php' target='cargaimagen'>";
+			echo "<label title='el archivo de imagen aerea es representado en el mapa dentro de las coordenadas definidas más adelante.' style='position:relative;' class='upload'>";							
+				echo "<span id='upload' style='position:absolute;top:0px;left:0px;'>arrastre o busque aquí un archivo de imagen aerea</span>";
+				echo "<input id='uploadinput' style='position:relative;opacity:0;' type='file' name='upload' value='' onchange='this.parentNode.parentNode.submit();'></label>";
+				echo "<input type='hidden' id='actividad' name='actividad' value='".$ID."'>";
+				echo "<input type='hidden' id='tipo' name='tipo' value='img.png'>";
+			echo "</form>";
+			echo "<iframe id='cargaimagen' name='cargaimagen'></iframe>";
 			
+			$carpnum=str_pad($ID, 8, '0', STR_PAD_LEFT);
+			$ruta="./documentos/actividades/".$carpnum."/img.png";
+			$src='';
+			if(file_exists($ruta)){$src="src='".$ruta."'";}
+			echo "<img id='adjunto' $src>";
+			
+						
 			echo "<form method='post' action='./actividad_config.php?actividad=$ID'>";
 			echo "<input type='hidden' name='accion' value='guardar'>";
 			
