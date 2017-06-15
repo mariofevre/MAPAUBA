@@ -355,6 +355,33 @@ div.fila.titulo{
 	background-color:rgba(50,70,255,0.3);
 	border:#57f solid 2px;
 }
+
+img#imagen{
+	display:none;
+}
+.seleccionado img#imagen{
+	display:block;
+	max-width:200px;
+	max-height:100px;
+}
+
+p#desarrollo{
+	display:none;
+}
+.seleccionado p#desarrollo{
+	display:block;
+	font-size:11px;
+}
+
+.seleccionado a{
+	color:#000;
+}
+
+.seleccionado span.textobreve{
+	position:relative;
+	left:0px;
+	top:0px;
+}
 #mapa {
 	border-left:none;	
 	border-right:none;
@@ -493,3 +520,6 @@ iframe#cargaimagen{
     top: 3px;
 }
 
+#page table td{
+	font-size:12px;
+}
