@@ -142,6 +142,7 @@ function obtenerPuntos($Actividad,$Escala,$Nivel,$Area){
     </script>
     
     <script src="http://www.openlayers.org/api/OpenLayers.js"></script>	    
+    <script type="text/javascript" src="http://maps.stamen.com/js/tile.stamen.js?v1.3.0"></script>
     
     <script type="text/javascript">
         // Definimos las variables globales 'mapa' y 'capa'
@@ -154,26 +155,38 @@ function obtenerPuntos($Actividad,$Escala,$Nivel,$Area){
             var mapa = new OpenLayers.Map("divMapa");
 
             // Creamos una capa base
-            
+            /*
             var capa = new OpenLayers.Layer.WMS( 
                 "Base de calles OSM",
                 "http://full.wms.geofabrik.de/web/975d3dc24139f06ce8306f9353d28c10?", 
                 {layers: 'basic'},
                 {attribution:"Base OSM bajo servidor GEOFABRIK"}
-            );
+            );*/
            
             // Creamos una capa base
-           /* 
-            var capa = new OpenLayers.Layer.WMS( 
-                "Base de calles OSM",
-                "http://129.206.228.72/cached/osm?", 
+            
+            var capa = new OpenLayers.Layer.Stamen("toner");
+            
+  	        // Creamos una capa fondo con un servicio wms
+             var capa = new OpenLayers.Layer.WMS( 
+                "Calles en OWS terrestris",
+                "http://ows.terrestris.de/osm/service?styles=&amp;layer=OSM-WMS&amp;service=WMS&amp;srs=epsg:4326&amp;format=image%2Fpng&amp;sld_version=1.1.0&", 
+                {layers: 'OSM-WMS'},	                
+                {attribution:"Base OSM bajo servidor irs gis lab"}
+            );		
+   
+            
+            
+            // Creamos una capa fondo con un servicio wms
+            var capaB = new OpenLayers.Layer.WMS( 
+                "Calles en Geofabrik",	                
+                "http://full.wms.geofabrik.de/web/975d3dc24139f06ce8306f9353d28c10?", 
                 {layers: 'basic'},
                 {attribution:"Base OSM bajo servidor GEOFABRIK"}
             );
-            */
-            				            		
-            var styleMap = new OpenLayers.StyleMap({pointRadius: 2,}			                         );
 
+            				            		
+            var styleMap = new OpenLayers.StyleMap({pointRadius: 2,});
             		
  			//creamos capa de puntos de la actividad
             baseLayer = new OpenLayers.Layer.Vector("Nuevos Base", {styleMap: styleMap});
@@ -232,7 +245,7 @@ function obtenerPuntos($Actividad,$Escala,$Nivel,$Area){
 
 
             // Añadimos las capas al mapa
-            mapa.addLayers([capa, vectorLayer, baseLayer]);
+            mapa.addLayers([capa,capaB, vectorLayer, baseLayer]);
             // Fijamos centro y zoom
             mapa.zoomToMaxExtent();
 

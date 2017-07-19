@@ -505,7 +505,8 @@ if($ACCION=="crear"&&$UsuarioI>0){
 	   }      
 	</script>
 	<script src="http://www.openlayers.org/api/OpenLayers.js"></script>		
-		
+	   <script type="text/javascript" src="http://maps.stamen.com/js/tile.stamen.js?v1.3.0"></script>
+	    	
 	<script type="text/javascript">
 	        // Definimos las variables globales 'mapa' y 'capa'
 	        var mapa, capa, marcklayer, vectorLayer, areaLayer, baseLayer, nuevoLayer,  tempLayer, controls, drawPoint, point_style, _Area, resaltadoLayer;
@@ -559,9 +560,10 @@ if($ACCION=="crear"&&$UsuarioI>0){
 	            );
 			*/
 			
+			 var capaC = new OpenLayers.Layer.Stamen("watercolor");
 			
  	        // Creamos una capa fondo con un servicio wms
-             var capaB = new OpenLayers.Layer.WMS( 
+             var capa = new OpenLayers.Layer.WMS( 
                 "Calles en OWS terrestris",
                 "http://ows.terrestris.de/osm/service?styles=&amp;layer=OSM-WMS&amp;service=WMS&amp;srs=epsg:4326&amp;format=image%2Fpng&amp;sld_version=1.1.0&", 
                 {layers: 'OSM-WMS'},	                
@@ -571,7 +573,7 @@ if($ACCION=="crear"&&$UsuarioI>0){
             
             
             // Creamos una capa fondo con un servicio wms
-            var capa = new OpenLayers.Layer.WMS( 
+            var capaB = new OpenLayers.Layer.WMS( 
                 "Calles en Geofabrik",	                
                 "http://full.wms.geofabrik.de/web/975d3dc24139f06ce8306f9353d28c10?", 
                 {layers: 'basic'},
